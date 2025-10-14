@@ -48,7 +48,7 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
-        rb.freezeRotation = true; // sterowanie rotacj¹ rêczne
+        rb.freezeRotation = true; 
 
         playerInput = GetComponent<PlayerInput>();
         moveAction = playerInput.actions["Move"];
@@ -64,7 +64,6 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        // Input
         moveInput = moveAction.ReadValue<Vector2>();
         lookInput = lookAction.ReadValue<Vector2>();
         sprintPressed = sprintAction.IsPressed();
@@ -82,7 +81,6 @@ public class PlayerController : MonoBehaviour
         HandleCameraRotation();
     }
 
-    // ---------------------- GroundCheck ----------------------
     private void HandleGroundCheck()
     {
         // SphereCast pod stopami
@@ -92,7 +90,6 @@ public class PlayerController : MonoBehaviour
             lastGroundedTime = Time.time;
     }
 
-    // ---------------------- Ruch ----------------------
     private void HandleMovement()
     {
         Vector3 camForward = mainCamera.transform.forward;
@@ -105,11 +102,9 @@ public class PlayerController : MonoBehaviour
         Vector3 moveDir = camForward * moveInput.y + camRight * moveInput.x;
         Vector3 moveVelocity = moveDir.normalized * (sprintPressed ? sprintSpeed : walkSpeed);
 
-        // zachowujemy Y
-        Vector3 targetVelocity = new Vector3(moveVelocity.x, rb.velocity.y, moveVelocity.z);
+        Vector3 targetVelocity = new(moveVelocity.x, rb.velocity.y, moveVelocity.z);
         rb.velocity = targetVelocity;
 
-        // obrót w kierunku ruchu
         if (moveDir.sqrMagnitude > 0.01f)
         {
             float targetRotation = Mathf.Atan2(moveDir.x, moveDir.z) * Mathf.Rad2Deg;
@@ -118,7 +113,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // ---------------------- Skok ----------------------
     private void HandleJump()
     {
         bool canJump = (Time.time - lastGroundedTime <= coyoteTime) &&
@@ -129,11 +123,10 @@ public class PlayerController : MonoBehaviour
             Vector3 v = rb.velocity;
             v.y = jumpForce;
             rb.velocity = v;
-            lastJumpPressedTime = -10f; // reset input
+            lastJumpPressedTime = -10f;
         }
     }
 
-    // ---------------------- Dodatkowa grawitacja ----------------------
     private void ApplyExtraGravity()
     {
         if (!grounded)
@@ -142,7 +135,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // ---------------------- Kamera ----------------------
     private void HandleCameraRotation()
     {
         if (lookInput.sqrMagnitude > 0.01f)
