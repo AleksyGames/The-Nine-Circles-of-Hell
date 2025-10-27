@@ -6,7 +6,9 @@ using UnityEngine.AI;
 public class EnemyMovement : MonoBehaviour
 {
     [Header("References")]
-    public Transform player; // przypisz gracza (lub zostanie znaleziony po tagu "Player")
+    public Transform player;
+
+    [HideInInspector] public NavMeshAgent Agent;
 
     [Header("Patrol")]
     public Transform[] patrolPoints;
@@ -15,19 +17,19 @@ public class EnemyMovement : MonoBehaviour
 
     [Header("Detection & Chase")]
     public float detectionRadius = 10f;
-    public float loseSightRadius = 15f; // dystans, po którym przeciwnik wraca do patrolu
+    public float loseSightRadius = 15f;
     public float chaseSpeed = 4f;
-
-    [Header("Attack")]
-    public float attackRange = 1.8f;
-    public float attackCooldown = 1.5f;
-    public int attackDamage = 10;
+    public float rotationSpeed = 8f; // prêdkoœæ obracania w stronê gracza
 
     private NavMeshAgent agent;
     private int currentPatrolIndex;
     private float waitTimer;
-    private readonly float lastAttackTime;
     private bool isChasing;
+
+    void Awake()
+    {
+        Agent = GetComponent<NavMeshAgent>();
+    }
 
     void Start()
     {
@@ -70,7 +72,7 @@ public class EnemyMovement : MonoBehaviour
 
         if (isChasing)
         {
-            ChasePlayer(distanceToPlayer);
+            ChasePlayer();
         }
         else
         {
@@ -96,49 +98,26 @@ public class EnemyMovement : MonoBehaviour
         }
     }
 
-    private void ChasePlayer(float distanceToPlayer)
+    private void ChasePlayer()
     {
         agent.speed = chaseSpeed;
+        agent.SetDestination(player.position);
 
-        if (distanceToPlayer <= attackRange)
+        // Obracanie przeciwnika w stronê gracza
+        Vector3 direction = (player.position - transform.position).normalized;
+        direction.y = 0; // nie obracaj po osi Y (¿eby nie patrzy³ w dó³ lub górê)
+
+        if (direction.magnitude > 0.1f)
         {
-            agent.ResetPath();
-            transform.LookAt(new Vector3(player.position.x, transform.position.y, player.position.z));
-            //TryAttack();
-        }
-        else
-        {
-            agent.SetDestination(player.position);
+            Quaternion lookRotation = Quaternion.LookRotation(direction);
+            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * rotationSpeed);
         }
     }
-
-    //private void TryAttack()
-    //{
-        //if (Time.time - lastAttackTime < attackCooldown) return;
-        //lastAttackTime = Time.time;
-
-        // tu mo¿esz odpaliæ animacjê ataku
-        // Animator anim = GetComponent<Animator>();
-        // if (anim) anim.SetTrigger("Attack");
-
-        // przyk³adowe zadanie obra¿eñ
-        //PlayerHealth playerHealth = player.GetComponent<PlayerHealth>();
-        //if (playerHealth != null)
-        //{
-           // playerHealth.TakeDamage(attackDamage);
-        //}
-        //else
-        //{
-           // player.SendMessage("TakeDamage", attackDamage, SendMessageOptions.DontRequireReceiver);
-        //}
-    //}
 
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, detectionRadius);
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, attackRange);
         Gizmos.color = Color.gray;
         Gizmos.DrawWireSphere(transform.position, loseSightRadius);
     }

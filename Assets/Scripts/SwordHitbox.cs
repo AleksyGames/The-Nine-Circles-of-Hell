@@ -5,7 +5,7 @@ using UnityEngine;
 public class SwordHitbox : MonoBehaviour
 {
     private SwordAttack sword;
-    private HashSet<EnemyHP> enemiesHit = new HashSet<EnemyHP>();
+    private HashSet<EnemyHealth> enemiesHit = new HashSet<EnemyHealth>();
 
     void Start()
     {
@@ -17,7 +17,7 @@ public class SwordHitbox : MonoBehaviour
         if (sword == null || !sword.isAttacking) return;
         if (!other.CompareTag("Enemy")) return;
 
-        EnemyHP enemy = other.GetComponent<EnemyHP>();
+        EnemyHealth enemy = other.GetComponent<EnemyHealth>();
         if (enemy == null) return;
 
         if (!enemiesHit.Contains(enemy))
