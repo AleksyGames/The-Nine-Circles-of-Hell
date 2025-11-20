@@ -6,7 +6,9 @@ public class JumpSacre : MonoBehaviour
 {
     [Header("Jump scare settings")]
     public GameObject jumpScareObject; 
-    public float displayTime = 2f;     
+    public float displayTime = 2f;
+
+    public AudioSource AudioSource;
 
     private bool hasTriggered = false;
 
@@ -22,6 +24,7 @@ public class JumpSacre : MonoBehaviour
         {
             hasTriggered = true;
             StartCoroutine(ShowJumpScare());
+            AudioSource.Play();
         }
     }
 
